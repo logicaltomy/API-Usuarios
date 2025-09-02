@@ -1,4 +1,3 @@
-// Region.java
 package cl.condor.usuarios_api.model;
 
 import jakarta.persistence.*;

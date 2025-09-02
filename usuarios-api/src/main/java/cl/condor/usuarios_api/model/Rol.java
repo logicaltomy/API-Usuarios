@@ -1,4 +1,3 @@
-// Rol.java
 package cl.condor.usuarios_api.model;
 
 import jakarta.persistence.*;
@@ -16,3 +15,4 @@ public class Rol {
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
 }
+
