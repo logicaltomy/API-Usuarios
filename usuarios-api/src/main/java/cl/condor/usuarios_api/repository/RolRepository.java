@@ -1,9 +1,10 @@
+// RolRepository.java
 package cl.condor.usuarios_api.repository;
 
-import cl.condor.usuarios_api.model.Usuario;
+import cl.condor.usuarios_api.model.Rol;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
+public interface RolRepository extends JpaRepository<Rol, Integer> {
 }
