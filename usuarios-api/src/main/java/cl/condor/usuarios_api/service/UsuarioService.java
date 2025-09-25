@@ -4,7 +4,10 @@ import cl.condor.usuarios_api.repository.EstadoRepository;
 import cl.condor.usuarios_api.repository.RegionRepository;
 import cl.condor.usuarios_api.repository.RolRepository;
 import cl.condor.usuarios_api.repository.UsuarioRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +15,7 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UsuarioService {
 
     @Autowired
@@ -25,6 +29,9 @@ public class UsuarioService {
 
     @Autowired
     private RolRepository rolRepository;
+
+    // acá tenemos el bean
+    private final PasswordEncoder encoder;
 
     public List<Usuario> findAll() {
         return usuarioRepository.findAll();
@@ -49,6 +56,7 @@ public class UsuarioService {
         if (usuario.getIdRol() == null || !rolRepository.existsById(usuario.getIdRol())) {
             throw new RuntimeException("Rol no encontrado, no se puede guardar el Usuario");
         }
+        usuario.setContrasena(encoder.encode(usuario.getContrasena()));
         return usuarioRepository.save(usuario);
     }
 
