@@ -15,9 +15,6 @@ public class Usuario {
     @Column(name = "id_usuario")
     private Integer id;
 
-    @Column(name = "rut", length = 20)
-    private String rut;
-
     @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
 
