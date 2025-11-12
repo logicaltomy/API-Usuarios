@@ -69,4 +69,62 @@ public class UsuarioController {
         Usuario saved = usuarioService.save(usuario);
         return ResponseEntity.status(201).body(saved);
     }
+
+    // 1.26.0 -  Updates
+    @Operation(summary = "Actualizar solo el nombre de un usuario")
+    @PatchMapping("/{id}/nombre")
+    public ResponseEntity<Usuario> updateNombre(
+            @PathVariable Integer id,
+            @RequestParam String nombre) {
+
+        try {
+            Usuario actualizado = usuarioService.updateNombre(id, nombre);
+            return ResponseEntity.ok(actualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(summary = "Actualizar solo el apellido de un usuario")
+    @PatchMapping("/{id}/apellido")
+    public ResponseEntity<Usuario> updateApellido(
+            @PathVariable Integer id,
+            @RequestParam String apellido) {
+
+        try {
+            Usuario actualizado = usuarioService.updateApellido(id, apellido);
+            return ResponseEntity.ok(actualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(summary = "Actualizar solo el correo de un usuario")
+    @PatchMapping("/{id}/correo")
+    public ResponseEntity<Usuario> updateCorreo(
+            @PathVariable Integer id,
+            @RequestParam String correo) {
+
+        try {
+            Usuario actualizado = usuarioService.updateCorreo(id, correo);
+            return ResponseEntity.ok(actualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(summary = "Actualizar solo la región de un usuario")
+    @PatchMapping("/{id}/region")
+    public ResponseEntity<Usuario> updateRegion(
+            @PathVariable Integer id,
+            @RequestParam Integer idRegion) {
+
+        try {
+            Usuario actualizado = usuarioService.updateRegion(id, idRegion);
+            return ResponseEntity.ok(actualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

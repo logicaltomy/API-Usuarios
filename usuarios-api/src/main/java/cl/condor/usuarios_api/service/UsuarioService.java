@@ -60,4 +60,40 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
+    // 1.26.0 -  Updates
+
+    @Transactional
+    public Usuario updateNombre(Integer id, String nuevoNombre) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        usuario.setNombre(nuevoNombre);
+        return usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public Usuario updateApellido(Integer id, String nuevoApellido) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        usuario.setApellido(nuevoApellido);
+        return usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public Usuario updateCorreo(Integer id, String nuevoCorreo) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        usuario.setCorreo(nuevoCorreo);
+        return usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public Usuario updateRegion(Integer id, Integer nuevaRegion) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        usuario.setIdRegion(nuevaRegion);
+        return usuarioRepository.save(usuario);
+    }
+
+
+
 }
