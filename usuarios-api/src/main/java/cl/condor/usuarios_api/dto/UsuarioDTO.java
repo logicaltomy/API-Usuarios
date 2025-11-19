@@ -15,9 +15,7 @@ public class UsuarioDTO {
 
     // Datos Personales
     private String nombre;
-    private String apellido;
     private String correo;
-    private LocalDate fNacimiento;
     private byte[] fotoPerfil; // Se enviará como Base64 en el JSON
 
     // Datos de Actividad

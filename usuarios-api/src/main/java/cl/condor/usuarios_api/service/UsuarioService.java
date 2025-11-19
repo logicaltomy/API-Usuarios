@@ -43,9 +43,7 @@ public class UsuarioService {
         return UsuarioDTO.builder()
                 .id(usuario.getId())
                 .nombre(usuario.getNombre())
-                .apellido(usuario.getApellido())
                 .correo(usuario.getCorreo())
-                .fNacimiento(usuario.getFNacimiento())
                 .fotoPerfil(usuario.getFotoPerfil())
                 .rutasRecorridas(usuario.getRutasRecorridas())
                 .kmRecorridos(usuario.getKmRecorridos())
@@ -89,13 +87,6 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    @Transactional
-    public Usuario updateApellido(Integer id, String nuevoApellido) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        usuario.setApellido(nuevoApellido);
-        return usuarioRepository.save(usuario);
-    }
 
     @Transactional
     public Usuario updateCorreo(Integer id, String nuevoCorreo) {
@@ -123,6 +114,11 @@ public class UsuarioService {
             throw new RuntimeException("Credenciales invalidas");
         }
     }
-
+    
+    // Este método es necesario para que funcione el controller "/buscar"
+    public Usuario findByCorreo(String correo) {
+        return usuarioRepository.findByCorreo(correo)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con correo: " + correo));
+    }
 
 }

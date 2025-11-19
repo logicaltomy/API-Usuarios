@@ -50,12 +50,7 @@ public class DataLoader implements CommandLineRunner {
 
             Usuario u = Usuario.builder()
                     .nombre(nombre)
-                    .apellido(apellido)
                     .correo(correo)
-                    .fNacimiento(randomDateBetween(
-                            LocalDate.of(1970, 1, 1),
-                            LocalDate.of(2006, 12, 31),
-                            i))
                     .contrasena("Secret123!")
                     .fotoPerfil(null)
                     .rutasRecorridas(faker.number().numberBetween(0, 100))

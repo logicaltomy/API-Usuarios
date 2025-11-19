@@ -62,6 +62,20 @@ public class UsuarioController {
         }
     }
 
+    @Operation(summary = "Buscar usuario por Correo")
+    @GetMapping("/buscar")
+    public ResponseEntity<UsuarioDTO> getByCorreo(@RequestParam String correo) {
+        try {
+            Usuario usuario = usuarioService.findByCorreo(correo); 
+            if (usuario == null) return ResponseEntity.notFound().build();
+            
+            UsuarioDTO usuarioDTO = usuarioService.mapToDTO(usuario);
+            return ResponseEntity.ok(usuarioDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @Operation(
             summary = "Crear un nuevo usuario",
             description = """
@@ -91,19 +105,6 @@ public class UsuarioController {
         }
     }
 
-    @Operation(summary = "Actualizar solo el apellido de un usuario")
-    @PatchMapping("/{id}/apellido")
-    public ResponseEntity<Usuario> updateApellido(
-            @PathVariable Integer id,
-            @RequestParam String apellido) {
-
-        try {
-            Usuario actualizado = usuarioService.updateApellido(id, apellido);
-            return ResponseEntity.ok(actualizado);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
 
     @Operation(summary = "Actualizar solo el correo de un usuario")
     @PatchMapping("/{id}/correo")
