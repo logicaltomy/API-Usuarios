@@ -30,9 +30,6 @@ public class Usuario {
     @Column(name = "contrasena", nullable = false, length = 255)
     private String contrasena;
 
-    @Column(name = "token", length = 255)
-    private String token;
-
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "foto_perfil", columnDefinition = "LONGBLOB")

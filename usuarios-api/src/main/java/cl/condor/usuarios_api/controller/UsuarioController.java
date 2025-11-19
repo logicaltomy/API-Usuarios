@@ -1,14 +1,18 @@
 package cl.condor.usuarios_api.controller;
 
+import cl.condor.usuarios_api.dto.LoginDTO;
+import cl.condor.usuarios_api.dto.UsuarioDTO;
 import cl.condor.usuarios_api.model.Usuario;
 import cl.condor.usuarios_api.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(
         name = "Usuarios",
@@ -48,9 +52,11 @@ public class UsuarioController {
                 """
     )
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> getById(@PathVariable Integer id) {
+    public ResponseEntity<UsuarioDTO> getById(@PathVariable Integer id) {
         try {
-            return ResponseEntity.ok(usuarioService.findById(id));
+            Usuario usuario = usuarioService.findById(id);
+            UsuarioDTO usuarioDTO = usuarioService.mapToDTO(usuario);
+            return ResponseEntity.ok(usuarioDTO);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
@@ -123,7 +129,28 @@ public class UsuarioController {
             Usuario actualizado = usuarioService.updateRegion(id, idRegion);
             return ResponseEntity.ok(actualizado);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            if(e.getMessage().equals("Region no encontrado")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Operation(summary = "Login de usuario", description = """
+            El usuario puede intentar registrarse, comparamos
+            su contrasenia ingresada con el hatch que se encuentra en
+            la BD.
+            """)
+    @PostMapping("/login")
+    public ResponseEntity<Void> login(@RequestBody LoginDTO loginDTO) {
+        try {
+            usuarioService.login(loginDTO);
+            return ResponseEntity.ok().build();
+        }catch (RuntimeException e) {
+            if(e.getMessage().equals("Credenciales invalidas")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

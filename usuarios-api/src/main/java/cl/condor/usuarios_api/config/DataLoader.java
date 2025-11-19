@@ -57,7 +57,6 @@ public class DataLoader implements CommandLineRunner {
                             LocalDate.of(2006, 12, 31),
                             i))
                     .contrasena("Secret123!")
-                    .token(null)
                     .fotoPerfil(null)
                     .rutasRecorridas(faker.number().numberBetween(0, 100))
                     .kmRecorridos(BigDecimal.valueOf(faker.number().randomDouble(2, 0, 1000)))
