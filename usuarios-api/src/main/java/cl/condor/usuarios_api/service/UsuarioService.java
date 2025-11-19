@@ -114,11 +114,15 @@ public class UsuarioService {
     }
 
     public void login(LoginDTO loginDTO) {
-        Usuario usuario =  usuarioRepository.findById(loginDTO.getId())
+        // CAMBIO: Usamos findByCorreo y obtenemos el correo del DTO
+        Usuario usuario = usuarioRepository.findByCorreo(loginDTO.getCorreo())
                 .orElseThrow(() -> new RuntimeException("Credenciales invalidas"));
+
+        // Esta parte se mantiene igual (verificación de contraseña)
         if (!encoder.matches(loginDTO.getPassword(), usuario.getContrasena())){
             throw new RuntimeException("Credenciales invalidas");
         }
     }
+
 
 }

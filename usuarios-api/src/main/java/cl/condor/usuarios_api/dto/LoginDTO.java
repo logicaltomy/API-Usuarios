@@ -14,7 +14,7 @@ import lombok.AllArgsConstructor;
 public class LoginDTO {
 
     // Campo para identificar al usuario
-    private Integer id;
+    private String correo;
 
     // Contraseña en texto plano
     private String password;
