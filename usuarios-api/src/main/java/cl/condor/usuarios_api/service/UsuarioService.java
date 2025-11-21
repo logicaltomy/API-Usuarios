@@ -120,5 +120,40 @@ public class UsuarioService {
         return usuarioRepository.findByCorreo(correo)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con correo: " + correo));
     }
+    // Actualizar foto de perfil
+    
+    @Transactional
+    public Usuario updateFoto(Integer id, String fotoBase64) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Validación básica para evitar null pointers
+        if (fotoBase64 == null || fotoBase64.trim().isEmpty()) {
+            throw new RuntimeException("La foto no puede estar vacía");
+        }
+
+        try {
+            // LIMPIEZA: A veces el Base64 viene con prefijo "data:image/jpeg;base64," 
+            // o saltos de línea que rompen el decodificador.
+            String cleanBase64 = fotoBase64;
+            
+            if (fotoBase64.contains(",")) {
+                // Tomamos solo la parte después de la coma
+                cleanBase64 = fotoBase64.split(",")[1]; 
+            }
+            
+            // Eliminar espacios en blanco o saltos de linea accidentales
+            cleanBase64 = cleanBase64.replaceAll("\\s", "");
+
+            // Decodificar String Base64 -> byte[]
+            byte[] fotoBytes = java.util.Base64.getDecoder().decode(cleanBase64);
+            
+            usuario.setFotoPerfil(fotoBytes);
+            return usuarioRepository.save(usuario);
+
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("El string enviado no es un Base64 válido: " + e.getMessage());
+        }
+    }
 
 }

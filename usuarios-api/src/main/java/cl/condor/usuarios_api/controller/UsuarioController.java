@@ -155,4 +155,21 @@ public class UsuarioController {
         }
     }
 
+    // Endpoint para subir/actualizar foto de perfil
+    @Operation(summary = "Actualizar foto de perfil (Base64)")
+    @PatchMapping("/{id}/foto")
+    public ResponseEntity<Usuario> updateFotoPerfil(
+            @PathVariable Integer id,
+            @RequestBody String fotoBase64) {
+        try {
+            Usuario actualizado = usuarioService.updateFoto(id, fotoBase64);
+            return ResponseEntity.ok(actualizado);
+        } catch (RuntimeException e) {
+            // Si falla por usuario no encontrado o base64 invalido
+            return ResponseEntity.badRequest().build(); 
+        }
+    }
+
+
+
 }
