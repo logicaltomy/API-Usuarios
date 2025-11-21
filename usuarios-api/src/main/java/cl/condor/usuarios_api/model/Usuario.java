@@ -35,6 +35,18 @@ public class Usuario {
     @Column(name = "km_recorridos", nullable = false, precision = 10, scale = 2)
     private BigDecimal kmRecorridos = BigDecimal.ZERO;
 
+    @Column(name = "pregunta_seguridad1")
+    private String preguntaSeguridad1;
+
+    @Column(name = "respuesta_seguridad1")
+    private String respuestaSeguridad1;
+
+    @Column(name = "pregunta_seguridad2")
+    private String preguntaSeguridad2;
+
+    @Column(name = "respuesta_seguridad2")
+    private String respuestaSeguridad2;
+
     @Column(name = "id_rol")
     private Integer idRol;
 

@@ -1,6 +1,8 @@
 package cl.condor.usuarios_api.controller;
 
 import cl.condor.usuarios_api.dto.LoginDTO;
+import cl.condor.usuarios_api.dto.PreguntasResponseDTO; // IMPORTANTE: DTO Nuevo
+import cl.condor.usuarios_api.dto.RecuperacionDTO;      // IMPORTANTE: DTO Nuevo
 import cl.condor.usuarios_api.dto.UsuarioDTO;
 import cl.condor.usuarios_api.model.Usuario;
 import cl.condor.usuarios_api.service.UsuarioService;
@@ -12,15 +14,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @Tag(
         name = "Usuarios",
         description = """
             Controlador principal del microservicio de Usuarios.
-            Gestiona la creación, consulta y listado de los usuarios registrados.
-            Cada usuario está asociado a un Rol, una Región y un Estado.
-            Las contraseñas se almacenan de forma segura mediante hash (BCrypt).
+            Gestiona la creación, consulta, listado y seguridad (login/recuperación).
             """
 )
 @RestController
@@ -30,13 +29,11 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    @Operation(
-            summary = "Listar todos los usuarios",
-            description = """
-                Retorna la lista completa de usuarios registrados.
-                Si no hay registros, devuelve HTTP 204 No Content.
-                """
-    )
+    // ==================================================================
+    //  ENDPOINTS EXISTENTES (GET, POST, PATCH) - SE MANTIENEN IGUAL
+    // ==================================================================
+
+    @Operation(summary = "Listar todos los usuarios")
     @GetMapping
     public ResponseEntity<List<Usuario>> getAll() {
         List<Usuario> lista = usuarioService.findAll();
@@ -44,13 +41,7 @@ public class UsuarioController {
         return ResponseEntity.ok(lista);
     }
 
-    @Operation(
-            summary = "Buscar usuario por ID",
-            description = """
-                Devuelve un usuario específico según su identificador.
-                Si no existe, responde con HTTP 404 Not Found.
-                """
-    )
+    @Operation(summary = "Buscar usuario por ID")
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioDTO> getById(@PathVariable Integer id) {
         try {
@@ -77,26 +68,27 @@ public class UsuarioController {
     }
 
     @Operation(
-            summary = "Crear un nuevo usuario",
+            summary = "Crear un nuevo usuario (Registro)",
             description = """
-                Registra un nuevo usuario en el sistema.
-                La contraseña se encripta automáticamente con BCrypt 
-                antes de guardarse en la base de datos.
+                Registra un nuevo usuario. 
+                REQUIERE: nombre, correo, contraseña, region, rol 
+                y AHORA TAMBIÉN las 2 preguntas y respuestas de seguridad.
                 """
     )
     @PostMapping
-    public ResponseEntity<Usuario> create(@RequestBody Usuario usuario) {
-        Usuario saved = usuarioService.save(usuario);
-        return ResponseEntity.status(201).body(saved);
+    public ResponseEntity<?> create(@RequestBody Usuario usuario) {
+        try {
+            Usuario saved = usuarioService.save(usuario);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        } catch (RuntimeException e) {
+            // Capturamos errores de validación (ej: faltan preguntas de seguridad)
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    // 1.26.0 -  Updates
     @Operation(summary = "Actualizar solo el nombre de un usuario")
     @PatchMapping("/{id}/nombre")
-    public ResponseEntity<Usuario> updateNombre(
-            @PathVariable Integer id,
-            @RequestParam String nombre) {
-
+    public ResponseEntity<Usuario> updateNombre(@PathVariable Integer id, @RequestParam String nombre) {
         try {
             Usuario actualizado = usuarioService.updateNombre(id, nombre);
             return ResponseEntity.ok(actualizado);
@@ -105,13 +97,9 @@ public class UsuarioController {
         }
     }
 
-
     @Operation(summary = "Actualizar solo el correo de un usuario")
     @PatchMapping("/{id}/correo")
-    public ResponseEntity<Usuario> updateCorreo(
-            @PathVariable Integer id,
-            @RequestParam String correo) {
-
+    public ResponseEntity<Usuario> updateCorreo(@PathVariable Integer id, @RequestParam String correo) {
         try {
             Usuario actualizado = usuarioService.updateCorreo(id, correo);
             return ResponseEntity.ok(actualizado);
@@ -122,10 +110,7 @@ public class UsuarioController {
 
     @Operation(summary = "Actualizar solo la región de un usuario")
     @PatchMapping("/{id}/region")
-    public ResponseEntity<Usuario> updateRegion(
-            @PathVariable Integer id,
-            @RequestParam Integer idRegion) {
-
+    public ResponseEntity<Usuario> updateRegion(@PathVariable Integer id, @RequestParam Integer idRegion) {
         try {
             Usuario actualizado = usuarioService.updateRegion(id, idRegion);
             return ResponseEntity.ok(actualizado);
@@ -137,11 +122,7 @@ public class UsuarioController {
         }
     }
 
-    @Operation(summary = "Login de usuario", description = """
-            El usuario puede intentar registrarse, comparamos
-            su contrasenia ingresada con el hatch que se encuentra en
-            la BD.
-            """)
+    @Operation(summary = "Login de usuario")
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody LoginDTO loginDTO) {
         try {
@@ -155,21 +136,52 @@ public class UsuarioController {
         }
     }
 
-    // Endpoint para subir/actualizar foto de perfil
     @Operation(summary = "Actualizar foto de perfil (Base64)")
     @PatchMapping("/{id}/foto")
-    public ResponseEntity<Usuario> updateFotoPerfil(
-            @PathVariable Integer id,
-            @RequestBody String fotoBase64) {
+    public ResponseEntity<Usuario> updateFotoPerfil(@PathVariable Integer id, @RequestBody String fotoBase64) {
         try {
             Usuario actualizado = usuarioService.updateFoto(id, fotoBase64);
             return ResponseEntity.ok(actualizado);
         } catch (RuntimeException e) {
-            // Si falla por usuario no encontrado o base64 invalido
             return ResponseEntity.badRequest().build(); 
         }
     }
 
+    // ==================================================================
+    //  NUEVOS ENDPOINTS PARA RECUPERACIÓN DE CONTRASEÑA
+    // ==================================================================
 
+    @Operation(
+            summary = "Obtener preguntas de seguridad",
+            description = "Dado un correo, devuelve las 2 preguntas que el usuario configuró para poder mostrarlas en el Frontend."
+    )
+    @GetMapping("/preguntas")
+    public ResponseEntity<?> obtenerPreguntas(@RequestParam String correo) {
+        try {
+            PreguntasResponseDTO response = usuarioService.obtenerPreguntasSeguridad(correo);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            // Retorna 404 si el usuario no existe o 400 si no tiene preguntas configuradas
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 
+    @Operation(
+            summary = "Recuperar Contraseña",
+            description = """
+                Recibe correo, las 2 respuestas de seguridad y la nueva contraseña.
+                Si las respuestas coinciden (case-insensitive), actualiza la password.
+                """
+    )
+    @PostMapping("/recuperar")
+    public ResponseEntity<?> recuperarContrasena(@RequestBody RecuperacionDTO recuperacionDTO) {
+        try {
+            usuarioService.recuperarContrasena(recuperacionDTO);
+            // Devolvemos un mensaje simple o un JSON 200 OK
+            return ResponseEntity.ok("Contraseña restablecida con éxito.");
+        } catch (RuntimeException e) {
+            // Si las respuestas son incorrectas, devolvemos 400 Bad Request con el mensaje del error
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }
