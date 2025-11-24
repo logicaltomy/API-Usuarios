@@ -122,6 +122,16 @@ public class UsuarioController {
         }
     }
 
+    @PatchMapping("/{id}/rutasRecorridas")
+    public ResponseEntity<Usuario> updateRutasRecorridas(@PathVariable Integer id, @RequestParam Integer nuevasRutas) {
+        try {
+            Usuario actualizado = usuarioService.updateRutasRecorridas(id, nuevasRutas);
+            return ResponseEntity.ok(actualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @Operation(summary = "Login de usuario")
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody LoginDTO loginDTO) {
